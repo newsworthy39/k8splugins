@@ -1,0 +1,56 @@
+#!/bin/bash
+STDIN=$(cat)
+VID=$(echo ${STDIN} | jq -r '.vlanId')
+MASTERINTERFACE=$(echo ${STDIN} | jq -r '.master')
+#
+#VID={"cniVersion":"1.0.0","linkInContainer":false,"master":"eth1","name":"cni_cf_10","type":"createVlanIfMissing","vlanId":10}'
+echo ${CNI_COMMAND} >> /tmp/debug.log
+
+if [ ${CNI_COMMAND} == "ADD" ]; then
+	# Make a new network, but first, ensure a vlan
+	if [ $(ip link show vlan${VID} | wc -l) -eq 0 ]; then
+		echo "Adding interface vlan${VID} because it was missing" >> /tmp/debug.log
+        	ip link add link ${MASTERINTERFACE} name vlan${VID} type vlan id ${VID}
+	        ip link set vlan${VID} up
+	else
+		echo "interface vlan${VID} allready present, not creating" >> /tmp/debug.log
+	fi
+
+cat << EOF > /tmp/debug.log.add
+	{
+	   "cniVersion":"1.1.0",
+	   "linkInContainer":false,
+	   "name":"cni_cf_10",
+	    "interfaces": [
+		{
+		    "name": "vlan${VID}",
+		    "mac": "52:54:00:cb:6d:12"
+		}
+	    ]
+	}
+EOF
+cat /tmp/debug.log.add
+fi
+
+if [ ${CNI_COMMAND} == "DEL" ]; then
+	echo "Deleting interface vlan${VID}" >> /tmp/debug.log
+	#ip link del dev vlan${VID} 
+	echo $STDIN > /tmp/debug.log.del
+
+cat << EOF > /tmp/debug.log.del
+	{
+	   "cniVersion":"1.1.0",
+	   "linkInContainer":false,
+	   "name":"cni_cf_10",
+	   "master": "vlan${VID}"
+	   "Interfaces": [ 
+	            {
+		    "Name": "vlan${VID}",
+		    "mac": "52:54:00:cb:6d:12"
+           	    }
+	   ] 
+	}
+EOF
+cat /tmp/debug.log.del
+fi
+
