@@ -80,7 +80,7 @@ func loadConf(args *skel.CmdArgs, cmdCheck bool) (*NetConf, string, error) {
 			}
 			n.Master = defaultRouteInterface
 		} else {
-			if len(result.Interfaces) == 1 && result.Interfaces[0].Name != "" {
+			if len(result.Interfaces) >= 1 && result.Interfaces[0].Name != "" {
 				n.Master = result.Interfaces[0].Name
 			} else {
 				return nil, "", fmt.Errorf("chained master failure. PrevResult lacks a single named interface")
