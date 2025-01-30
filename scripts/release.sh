@@ -5,7 +5,7 @@ SRC_DIR="${SRC_DIR:-$PWD}"
 DOCKER="${DOCKER:-docker}"
 GOLANG="${GOLANG:-golang:1.23-alpine}"
 
-TAG=0.6.1 #$(git describe --tags --dirty)
+TAG=$(git describe --tags --dirty)
 RELEASE_DIR=release-${TAG}
 
 BUILDFLAGS="-ldflags '-extldflags -static -X github.com/containernetworking/plugins/pkg/utils/buildversion.BuildVersion=${TAG}'"
