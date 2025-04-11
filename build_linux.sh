@@ -12,7 +12,6 @@ mkdir -p "${PWD}/bin"
 
 echo "Building plugins ${GOOS}"
 TAG=$(git describe --tags --dirty)
-#BUILDFLAGS="-ldflags '-extldflags -static -X github.com/containernetworking/plugins/pkg/utils/buildversion.BuildVersion=${TAG}'"
 VERSION="github.com/containernetworking/plugins/pkg/utils/buildversion.BuildVersion=${TAG}"
 PLUGINS="plugins/meta/* plugins/main/* plugins/ipam/*"
 for d in $PLUGINS; do
